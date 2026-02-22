@@ -3,6 +3,41 @@ import Map, { Marker, Popup, NavigationControl, FullscreenControl } from "react-
 
 const API = "http://localhost:3001";
 
+// ── CSV Export utility ────────────────────────────────────────────────────────
+function exportPickupCSV(hotspots, stream, campus) {
+  const daysKey = stream === "trash" ? "waste_days_to_80"   : "recycle_days_to_80";
+  const fillKey = stream === "trash" ? "waste_fill_percent" : "recycle_fill_percent";
+  const avgKey  = stream === "trash" ? "waste_days_to_fill" : "recycle_days_to_fill";
+  const label   = stream === "trash" ? "Trash" : "Recycle";
+  const urgency = (d) => d == null ? "No data" : d <= 2 ? "URGENT" : d <= 5 ? "Soon" : "On schedule";
+
+  const rows = [...hotspots]
+    .filter(h => h[daysKey] != null)
+    .sort((a, b) => (a[daysKey] ?? 999) - (b[daysKey] ?? 999));
+
+  const headers = ["Priority", "Location", "Campus", `Days Until 80% Full`, `Avg Fill %`, `Avg Days to Fill`, "Urgency", "Hotspot Score", "Placement"];
+  const csvRows = rows.map((h, i) => [
+    i + 1,
+    `"${(h.description || "").replace(/"/g, '""')}"`,
+    h.campus || "",
+    h[daysKey]?.toFixed(2) ?? "",
+    h[fillKey]?.toFixed(1) ?? "",
+    h[avgKey]?.toFixed(2)  ?? "",
+    urgency(h[daysKey]),
+    h.hotspot_score ?? "",
+    h.placement_status ?? "",
+  ]);
+
+  const csv  = [headers.join(","), ...csvRows.map(r => r.join(","))].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `bu_${campus}_${label.toLowerCase()}_pickup_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 const CAMPUS_META = {
   "charles-river": { label: "Charles River", lat: 42.3505, lng: -71.1054, zoom: 15, color: "#b45309" },
   "medical":        { label: "Medical",       lat: 42.3358, lng: -71.0720, zoom: 16, color: "#7c3aed" },
@@ -612,7 +647,7 @@ export default function MapPage() {
       </div>
 
       {/* Map */}
-      <div className="rounded-2xl overflow-hidden border border-stone-200 shadow-sm" style={{ height: 500 }}>
+      <div className="rounded-2xl overflow-hidden border border-stone-200 shadow-sm" style={{ height: "min(500px, 60vh)" }}>
         {loading ? (
           <div className="w-full h-full bg-stone-100 flex items-center justify-center">
             <p className="text-stone-400 text-sm animate-pulse">Loading bins from database...</p>
@@ -658,7 +693,7 @@ export default function MapPage() {
             Object.entries(HOTSPOT_META).map(([key, m]) => (
               <div key={key} className="flex items-center gap-1.5 text-xs text-stone-500">
                 <div className="w-3 h-3 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: m.color, border: key === "suggested" ? `2px dashed ${m.color}` : "none", outline: "none" }} />
+                 style={{ backgroundColor: m.color, border: key === "suggested" ? `2px dashed ${m.color}` : "none" }} />
                 <span><strong>{m.label}</strong> — {m.desc}</span>
               </div>
             ))
@@ -691,9 +726,18 @@ export default function MapPage() {
                hotspotView === "trash"   ? `🗑️ Trash Pickup Schedule` :
                                           `♻️ Recycle Pickup Schedule`}
             </h2>
-            <span className="text-xs text-stone-400">
-              {hotspotView === "score" ? `${hotspots.length} existing · ${suggestedPins.length} suggested` : `${hotspots.length} bins`}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-stone-400">
+                {hotspotView === "score" ? `${hotspots.length} existing · ${suggestedPins.length} suggested` : `${hotspots.length} bins`}
+              </span>
+              {(hotspotView === "trash" || hotspotView === "recycle") && (
+                <button
+                  onClick={() => exportPickupCSV(hotspots, hotspotView, campus)}
+                  className="flex items-center gap-1.5 bg-stone-800 hover:bg-stone-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                  ⬇️ Export CSV
+                </button>
+              )}
+            </div>
           </div>
           <div className="divide-y divide-stone-50 max-h-80 overflow-y-auto">
             {/* Suggested pins shown first in score view */}
@@ -812,4 +856,3 @@ export default function MapPage() {
     </div>
   );
 }
-
