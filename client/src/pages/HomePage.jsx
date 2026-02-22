@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const API = "http://localhost:3001";
+const API = "https://civics-hackathon.onrender.com";
 
 const CAMPUS_META = {
   "charles-river": { label: "Charles River", color: "#b45309", bg: "#fef3c7", border: "#fcd34d", emoji: "🎓" },
