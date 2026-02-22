@@ -1,12 +1,9 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import { Router } from "express";
 import OpenAI from "openai";
 import db from "../db/database.js";
 
 const router = Router();
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const getClient = () => new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // ── Build a data summary string to inject into every LLM prompt ───────────────
 function buildDataContext() {
@@ -64,7 +61,7 @@ router.post("/report", async (req, res) => {
       ? `Generate a concise waste management report for BU's ${campus} campus based on this data. Include: current fill status, which bins need pickup urgently, patterns you notice, and a recommended action. Keep it under 200 words.`
       : `Generate a concise overview waste management report for all BU campuses based on this data. Include: overall status, most critical locations, any patterns, and top 3 recommended actions. Keep it under 250 words.`;
 
-    const response = await client.chat.completions.create({
+    const response = await getClient().chat.completions.create({
       model: "gpt-4o-mini",
       max_tokens: 500,
       messages: [
@@ -109,7 +106,7 @@ router.post("/chat", async (req, res) => {
       { role: "user", content: question },
     ];
 
-    const response = await client.chat.completions.create({
+    const response = await getClient().chat.completions.create({
       model: "gpt-4o-mini",
       max_tokens: 400,
       messages,
