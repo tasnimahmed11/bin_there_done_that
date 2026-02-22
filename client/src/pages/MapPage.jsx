@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import Map, { Marker, Popup, NavigationControl, FullscreenControl } from "react-map-gl";
 
-const API = "https://civics-hackathon.onrender.com"; 
+const API = import.meta.env.VITE_API_URL;
 
 // ── CSV Export utility ────────────────────────────────────────────────────────
 function exportPickupCSV(hotspots, stream, campus) {
