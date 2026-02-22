@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const API = "https://civics-hackathon.onrender.com";
+const API = import.meta.env.VITE_API_URL;
 
 const CAMPUS_COLORS = {
   "charles-river": { primary: "#b45309", light: "#fef3c7", border: "#fcd34d", label: "Charles River" },
