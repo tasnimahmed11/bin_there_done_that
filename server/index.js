@@ -12,7 +12,10 @@ const app  = express();
 const PORT = process.env.PORT || 3001;
 
 // ── Middleware ────────────────────────────────────────────────────────────────
-app.use(cors({ origin: "http://localhost:5173" }));
+origin: [
+  "http://localhost:5173",
+  "https://bin-there-done-that-green.vercel.app"
+]
 app.use(express.json());
 
 // ── Routes ────────────────────────────────────────────────────────────────────
