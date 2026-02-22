@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { Router } from "express";
 import OpenAI from "openai";
 import db from "../db/database.js";

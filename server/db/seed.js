@@ -85,7 +85,7 @@ function seedCityBins() {
     });
 
     const rows = [];
-    const csvPath = path.join(DATA_DIR, "city_bins.csv");
+    const csvPath = path.join(DATA_DIR, "city of boston_big_belly_locations_on or near BU campuses.csv");
 
     fs.createReadStream(csvPath)
       .pipe(csv())
