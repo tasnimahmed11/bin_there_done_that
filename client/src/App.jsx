@@ -328,14 +328,7 @@ export default function App() {
             ))}
           </nav>
 
-          {/* AI chip — reserved */}
-          <div className="hidden md:flex items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-stone-800 text-white text-xs px-3 py-1.5 rounded-full opacity-60">
-              <span>🤖</span>
-              <span>AI Assistant</span>
-              <span className="bg-amber-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">SOON</span>
-            </div>
-          </div>
+
 
           {/* Mobile burger */}
           <button className="md:hidden p-2 text-stone-600" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
